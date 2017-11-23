@@ -5,6 +5,7 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import acf
 from scipy.stats import boxcox
+from Genetic_algorithm.GA import *
 from sklearn.decomposition import PCA
 
 
@@ -90,9 +91,12 @@ def calc_first_order_correlation(serie):
 
 
 def calc_box_cox_optmization_parameter(serie):
-
-    _, lambd = boxcox(serie)
-
+    lambd = 0
+    try:
+        _, lambd1 = boxcox(serie)
+        lambd = lambd1
+    except:
+        return lambd
     return lambd
 
 
@@ -131,11 +135,28 @@ def extract_database_features():
     pca.fit(lentao)
     feature_pca = pca.transform(lentao)
 
-    #a = extract_features(a, 1)
-    #a = pca.fit_transform(a)
+    new_series = []
+    new_features = []
+
+    for sheet, freq in zip(sheets, freqs):
+        df = data[sheet]
+        df = df.values
+        df = [exclude_nans(serie) for serie in df]
+        for serie in df:
+
+            nova_serie = generate_time_serie(serie, freq)
+            new_series.append(nova_serie)
+            new_features.append(pca.transform(extract_features(nova_serie, freq)))
+            #count += 1
+
     plt.scatter(feature_pca[:, 4], feature_pca[:, 0])
-    #plt.scatter(a[4], a[0], color='r')
-    plt.scatter(feature_pca[-1][4], feature_pca[-1][0], color='r')
+
+
+
+    file = open('generated.txt', 'w')
+    for item in new_features:
+        file.write(item[0])
+        plt.scatter(item[:, 4], item[:, 0], color='r')
     plt.show()
 
 

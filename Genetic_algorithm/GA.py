@@ -76,7 +76,7 @@ def evolve(pop, target, retain=0.2, random_select=0.05, mutate=0.01, frequency=1
             # but the function is unaware of the min/max
             # values used to create the individuals,
             individual[pos_to_mutate] = randint(
-                min(individual), max(individual))
+                0, max(individual))
     # crossover parents to create children
     parents_length = len(parents)
     desired_length = len(pop) - parents_length
@@ -102,6 +102,12 @@ def generate_serie(target_serie, lenght, min, max, p_count, iterations, frequenc
         fitness_history.append(grade(pop, target_serie, frequency))
 
     return pop[0]
+
+def generate_time_serie(target, frequency):
+
+    serie_ = generate_serie(target, len(target), 0, int(max(target)), len(target), 100, frequency=frequency)
+
+    return serie_
 
 
 
