@@ -7,7 +7,7 @@ from statsmodels.tsa.stattools import acf
 from scipy.stats import boxcox
 from Genetic_algorithm.GA import *
 from sklearn.decomposition import PCA
-
+import csv
 
 
 def read_database():
@@ -116,7 +116,7 @@ def extract_database_features():
     data, sheets = read_database()
     freqs = [1, 12, 4, 1]
     lentao = []
-    a = [3098, 4923, 4322, 5254, 4913, 2997, 3136, 5228, 5031, 5943, 4063, 3506, 5798, 4600, 4097, 5264, 5712, 5067, 5555, 5840]
+    #a = [3098, 4923, 4322, 5254, 4913, 2997, 3136, 5228, 5031, 5943, 4063, 3506, 5798, 4600, 4097, 5264, 5712, 5067, 5555, 5840]
 
     for sheet, freq in zip(sheets, freqs):
         df = data[sheet]
@@ -128,7 +128,7 @@ def extract_database_features():
             except:
                 print serie
 
-    lentao.append(extract_features(a, 1))
+    #lentao.append(extract_features(a, 1))
 
     lentao = np.array(lentao)
 
@@ -139,6 +139,7 @@ def extract_database_features():
     new_features = []
 
     for sheet, freq in zip(sheets, freqs):
+        count = 0
         df = data[sheet]
         df = df.values
         df = [exclude_nans(serie) for serie in df]
@@ -147,15 +148,22 @@ def extract_database_features():
             nova_serie = generate_time_serie(serie, freq)
             new_series.append(nova_serie)
             new_features.append(pca.transform(extract_features(nova_serie, freq)))
-            #count += 1
+            count += 1
+            #if count == 50:
+            #    break
+        #if count == 10:
+        #    break
 
     plt.scatter(feature_pca[:, 4], feature_pca[:, 0])
 
 
+    with open('novas_series.csv', 'wb') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=',')
+        for item in new_series:
+            spamwriter.writerow(item)
 
-    file = open('generated.txt', 'w')
+
     for item in new_features:
-        file.write(item[0])
         plt.scatter(item[:, 4], item[:, 0], color='r')
     plt.show()
 
